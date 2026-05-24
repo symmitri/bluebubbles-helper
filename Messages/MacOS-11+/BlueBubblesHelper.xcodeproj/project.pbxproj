@@ -54,6 +54,11 @@
 		93DFDC5D2568DFD4009551D2 /* IMMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMMessage.h; sourceTree = "<group>"; };
 		93FD99392568E7360060D430 /* NetworkController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NetworkController.m; sourceTree = "<group>"; };
 		93FD993D2568E7500060D430 /* NetworkController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NetworkController.h; sourceTree = "<group>"; };
+		A6175FA22FB7F18A0090BABD /* SKStatusSubscription.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKStatusSubscription.h; sourceTree = "<group>"; };
+		A6175FA42FB7F20E0090BABD /* SKPublishedStatus.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKPublishedStatus.h; sourceTree = "<group>"; };
+		A6175FA62FB7F2250090BABD /* SKStatusPayload.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKStatusPayload.h; sourceTree = "<group>"; };
+		A6175FA82FB7F4ED0090BABD /* SKHandle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SKHandle.h; sourceTree = "<group>"; };
+		A6175FAC2FBBF8E50090BABD /* CKMediaObjectManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CKMediaObjectManager.h; sourceTree = "<group>"; };
 		A61DC0262A59FF8C00EA75A5 /* IDSIDQueryController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IDSIDQueryController.h; sourceTree = "<group>"; };
 		A61DC0272A59FFF200EA75A5 /* IDS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IDS.framework; path = /System/Library/PrivateFrameworks/IDS.framework; sourceTree = "<group>"; };
 		A61DC02B2A5A037400EA75A5 /* IDSDestination-Additions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "IDSDestination-Additions.h"; sourceTree = "<group>"; };
@@ -103,6 +108,11 @@
 		A65C21B82AAA7FCF00D6FB7F /* FMFHandle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMFHandle.h; sourceTree = "<group>"; };
 		A67F85DA2FA7EB4300F04596 /* BlueBubblesHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BlueBubblesHelper.h; sourceTree = "<group>"; };
 		A67F85DC2FA7FFEC00F04596 /* CKConversationList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CKConversationList.h; sourceTree = "<group>"; };
+		A67F85DE2FB2BB0400F04596 /* CKChatInputController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CKChatInputController.h; sourceTree = "<group>"; };
+		A67F85E02FB2BB2700F04596 /* CKChatController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CKChatController.h; sourceTree = "<group>"; };
+		A67F85E22FB2BB4B00F04596 /* CKCoreChatController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CKCoreChatController.h; sourceTree = "<group>"; };
+		A68C3F322FBEA45B00200A64 /* CKChatItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CKChatItem.h; sourceTree = "<group>"; };
+		A68C3F342FBEA69600200A64 /* IMEmojiTapback.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMEmojiTapback.h; sourceTree = "<group>"; };
 		A68C7FF729B025C7001002B6 /* IMTranscriptPluginChatItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IMTranscriptPluginChatItem.h; sourceTree = "<group>"; };
 		A68C7FFD29B0344A001002B6 /* ETiOSMacBalloonPluginDataSource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ETiOSMacBalloonPluginDataSource.h; sourceTree = "<group>"; };
 		A68C7FFE29B03EC5001002B6 /* HWiOSMacBalloonDataSource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HWiOSMacBalloonDataSource.h; sourceTree = "<group>"; };
@@ -258,6 +268,16 @@
 		FBCE4EDB201C264F002F8A61 /* IMCore */ = {
 			isa = PBXGroup;
 			children = (
+				A68C3F342FBEA69600200A64 /* IMEmojiTapback.h */,
+				A68C3F322FBEA45B00200A64 /* CKChatItem.h */,
+				A6175FAC2FBBF8E50090BABD /* CKMediaObjectManager.h */,
+				A6175FA82FB7F4ED0090BABD /* SKHandle.h */,
+				A6175FA62FB7F2250090BABD /* SKStatusPayload.h */,
+				A6175FA42FB7F20E0090BABD /* SKPublishedStatus.h */,
+				A6175FA22FB7F18A0090BABD /* SKStatusSubscription.h */,
+				A67F85E22FB2BB4B00F04596 /* CKCoreChatController.h */,
+				A67F85E02FB2BB2700F04596 /* CKChatController.h */,
+				A67F85DE2FB2BB0400F04596 /* CKChatInputController.h */,
 				A67F85DC2FA7FFEC00F04596 /* CKConversationList.h */,
 				A65C21B22AA6CB7400D6FB7F /* IMNickname.h */,
 				A65C21B12AA6CB7400D6FB7F /* IMNicknameAvatarImage.h */,
@@ -487,12 +507,12 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 22;
-				DEAD_CODE_STRIPPING = YES;
+				DEAD_CODE_STRIPPING = NO;
 				DEFINES_MODULE = YES;
 				DSTROOT = /;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_MODULE_VERIFIER = NO;
 				EXECUTABLE_PREFIX = "";
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/BlueBubblesHelper/Info.plist";
@@ -502,6 +522,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
+				LLVM_USE_TWO_LEVEL_NAMESPACE = NO;
 				MACOSX_DEPLOYMENT_TARGET = 11.5;
 				MARKETING_VERSION = 0.0.20;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -513,16 +534,18 @@
 					"$(inherited)",
 					"-ObjC",
 					"-framework",
-					"\"CoreServices\"",
+					CoreServices,
 					"-framework",
-					"\"Security\"",
-					"-undefined",
-					dynamic_lookup,
+					Security,
+					"-Wl,-undefined,dynamic_lookup",
+					"-flat_namespace",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.bluebubbles.messaging;
 				PRODUCT_NAME = BlueBubblesHelper;
 				SDKROOT = macosx;
 				SKIP_INSTALL = NO;
+				SUPPORTED_PLATFORMS = macosx;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "BlueBubblesHelper DyLib-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -549,12 +572,12 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 22;
-				DEAD_CODE_STRIPPING = YES;
+				DEAD_CODE_STRIPPING = NO;
 				DEFINES_MODULE = YES;
 				DSTROOT = /;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_MODULE_VERIFIER = NO;
 				EXECUTABLE_PREFIX = "";
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/BlueBubblesHelper/Info.plist";
@@ -564,6 +587,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
+				LLVM_USE_TWO_LEVEL_NAMESPACE = NO;
 				MACOSX_DEPLOYMENT_TARGET = 11.5;
 				MARKETING_VERSION = 0.0.20;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -573,16 +597,18 @@
 					"$(inherited)",
 					"-ObjC",
 					"-framework",
-					"\"CoreServices\"",
+					CoreServices,
 					"-framework",
-					"\"Security\"",
-					"-undefined",
-					dynamic_lookup,
+					Security,
+					"-Wl,-undefined,dynamic_lookup",
+					"-flat_namespace",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.bluebubbles.messaging;
 				PRODUCT_NAME = BlueBubblesHelper;
 				SDKROOT = macosx;
 				SKIP_INSTALL = NO;
+				SUPPORTED_PLATFORMS = macosx;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "BlueBubblesHelper DyLib-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				SYSTEM_FRAMEWORK_SEARCH_PATHS = (
