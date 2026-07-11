@@ -1,3 +1,12 @@
+//
+//  CKMediaObjectManager.h
+//  BlueBubblesHelper DyLib
+//
+//  Created by Tanay Neotia on 5/18/26.
+//  Copyright © 2026 BlueBubbleMessaging. All rights reserved.
+//
+
+
 // Headers generated with ktool v2.0.0
 // https://github.com/cxnder/ktool | pip3 install k2l
 // Platform: IOS | Minimum OS: 16.5.0 | SDK: 16.5.0
@@ -8,7 +17,6 @@
 
 @class NSDictionary, NSArray, NSMutableDictionary;
 
-#import 
 
 
 @interface CKMediaObjectManager : NSObject

@@ -1,3 +1,12 @@
+//
+//  SKStatusSubscription.h
+//  BlueBubblesHelper DyLib
+//
+//  Created by Tanay Neotia on 5/15/26.
+//  Copyright © 2026 BlueBubbleMessaging. All rights reserved.
+//
+
+
 // Headers generated with ktool v2.0.0
 // https://github.com/cxnder/ktool | pip3 install k2l
 // Platform: IOS | Minimum OS: 16.5.0 | SDK: 16.5.0
@@ -8,22 +17,20 @@
 
 @class NSArray, NSString;
 
-#import 
-
 #import "SKPublishedStatus.h"
-#import "SKStatusSubscriptionDaemonConnection.h"
+//#import "SKStatusSubscriptionDaemonConnection.h"
 #import "SKHandle.h"
-#import "SKStatusSubscriptionMetadata.h"
+//#import "SKStatusSubscriptionMetadata.h"
 
 @interface SKStatusSubscription : NSObject
 
 @property (readonly, nonatomic) SKPublishedStatus *currentStatus;
-@property (readonly, nonatomic) SKStatusSubscriptionDaemonConnection *daemonConnection; // ivar: _daemonConnection
+//@property (readonly, nonatomic) SKStatusSubscriptionDaemonConnection *daemonConnection; // ivar: _daemonConnection
 @property (readonly, nonatomic) SKHandle *ownerHandle;
-@property (readonly, nonatomic) NSArray *ownerHandles;
+@property (readonly, nonatomic) NSArray<SKHandle*> *ownerHandles;
 @property (readonly, nonatomic, getter=isPersonalStatusSubscription) BOOL personalStatusSubscription;
 @property (readonly, nonatomic) NSString *subscriptionIdentifier;
-@property (readonly, nonatomic) SKStatusSubscriptionMetadata *subscriptionMetadata; // ivar: _subscriptionMetadata
+//@property (readonly, nonatomic) SKStatusSubscriptionMetadata *subscriptionMetadata; // ivar: _subscriptionMetadata
 
 
 +(id)logger;

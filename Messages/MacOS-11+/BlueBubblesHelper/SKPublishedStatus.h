@@ -1,3 +1,12 @@
+//
+//  SKPublishedStatus.h
+//  BlueBubblesHelper DyLib
+//
+//  Created by Tanay Neotia on 5/15/26.
+//  Copyright © 2026 BlueBubbleMessaging. All rights reserved.
+//
+
+
 // Headers generated with ktool v2.0.0
 // https://github.com/cxnder/ktool | pip3 install k2l
 // Platform: IOS | Minimum OS: 16.5.0 | SDK: 16.5.0
@@ -9,9 +18,7 @@
 @class NSDate, NSString;
 @protocol NSSecureCoding;
 
-#import 
-
-#import "SKInvitationPayload.h"
+//#import "SKInvitationPayload.h"
 #import "SKStatusPayload.h"
 
 @interface SKPublishedStatus : NSObject 
@@ -21,7 +28,7 @@
 @property (readonly, nonatomic) NSDate *dateCreated; // ivar: _dateCreated
 @property (readonly, nonatomic) NSDate *datePublished; // ivar: _datePublished
 @property (readonly, nonatomic) NSDate *dateReceived; // ivar: _dateReceived
-@property (readonly, nonatomic) SKInvitationPayload *invitationPayload; // ivar: _invitationPayload
+//@property (readonly, nonatomic) SKInvitationPayload *invitationPayload; // ivar: _invitationPayload
 @property (readonly, nonatomic) SKStatusPayload *statusPayload; // ivar: _statusPayload
 @property (readonly, nonatomic) NSString *statusUniqueIdentifier; // ivar: _statusUniqueIdentifier
 

@@ -1,3 +1,12 @@
+//
+//  CKCoreChatController.h
+//  BlueBubblesHelper DyLib
+//
+//  Created by Tanay Neotia on 5/11/26.
+//  Copyright © 2026 BlueBubbleMessaging. All rights reserved.
+//
+
+
 // Headers generated with ktool v2.0.0
 // https://github.com/cxnder/ktool | pip3 install k2l
 // Platform: IOS | Minimum OS: 16.5.0 | SDK: 16.5.0
@@ -10,38 +19,38 @@
 @protocol IMChatSendProgressDelegate, IMSystemMonitorListener, CKCoreChatControllerDelegate;
 
 
-#import "CKScrollViewController.h"
-#import "CKTranscriptCollectionView.h"
+//#import "CKScrollViewController.h"
+//#import "CKTranscriptCollectionView.h"
 #import "CKConversation.h"
-#import "CKFullScreenBalloonViewController.h"
-#import "CKMacToolbarController.h"
-#import "CKScheduledUpdater.h"
+//#import "CKFullScreenBalloonViewController.h"
+//#import "CKMacToolbarController.h"
+//#import "CKScheduledUpdater.h"
 
-@interface CKCoreChatController : CKScrollViewController <IMChatSendProgressDelegate, IMSystemMonitorListener>
+@interface CKCoreChatController : NSObject /*: CKScrollViewController <IMChatSendProgressDelegate, IMSystemMonitorListener>*/
 
 
 
 @property (nonatomic) NSInteger acknowledgmentToSend; // ivar: _acknowledgmentToSend
 @property (readonly, nonatomic) CGFloat balloonMaxWidth;
 @property (readonly, nonatomic) IMChat *chat;
-@property (readonly, nonatomic) CKTranscriptCollectionView *collectionView;
-@property (retain, nonatomic) CKViewController<CKCoreTranscriptControllerProtocol> *collectionViewController; // ivar: _collectionViewController
+//@property (readonly, nonatomic) CKTranscriptCollectionView *collectionView;
+//@property (retain, nonatomic) CKViewController<CKCoreTranscriptControllerProtocol> *collectionViewController; // ivar: _collectionViewController
 @property (retain, nonatomic) CKConversation *conversation; // ivar: _conversation
 @property (readonly, copy) NSString *debugDescription;
 @property (weak, nonatomic) NSObject<CKCoreChatControllerDelegate> *delegate; // ivar: _delegate
 @property (readonly, copy) NSString *description;
 @property (nonatomic) BOOL disableAnimationsUnderTest; // ivar: _disableAnimationsUnderTest
-@property (retain, nonatomic) CKFullScreenBalloonViewController *fullScreenBalloonViewController; // ivar: _fullScreenBalloonViewController
+//@property (retain, nonatomic) CKFullScreenBalloonViewController *fullScreenBalloonViewController; // ivar: _fullScreenBalloonViewController
 @property (readonly, nonatomic) CGFloat gradientBottomPlaceholderHeight;
 @property (readonly) NSUInteger hash;
 @property (nonatomic) BOOL ignoreLastBalloonVisibleInMarkAsReadCheck; // ivar: _ignoreLastBalloonVisibleInMarkAsReadCheck
 @property (nonatomic) BOOL initialLayoutComplete; // ivar: _initialLayoutComplete
 @property (nonatomic) BOOL isShowingLockoutView; // ivar: _isShowingLockoutView
 @property (retain, nonatomic) STLockoutViewController *lockoutViewController; // ivar: _lockoutViewController
-@property (retain, nonatomic) CKMacToolbarController *macToolbarController; // ivar: _macToolbarController
-@property (copy, nonatomic) id *overrideScrollBlock; // ivar: _overrideScrollBlock
+//@property (retain, nonatomic) CKMacToolbarController *macToolbarController; // ivar: _macToolbarController
+//@property (copy, nonatomic) id *overrideScrollBlock; // ivar: _overrideScrollBlock
 @property (retain, nonatomic) UIProgressView *progressBar; // ivar: _progressBar
-@property (retain, nonatomic) CKScheduledUpdater *refreshServiceForSendingUpdater; // ivar: _refreshServiceForSendingUpdater
+//@property (retain, nonatomic) CKScheduledUpdater *refreshServiceForSendingUpdater; // ivar: _refreshServiceForSendingUpdater
 @property (nonatomic) CGFloat sendProgress; // ivar: _sendProgress
 @property (nonatomic) NSUInteger sendProgressSendCount; // ivar: _sendProgressSendCount
 @property (nonatomic) NSUInteger sendProgressTotalCount; // ivar: _sendProgressTotalCount
@@ -74,8 +83,8 @@
 -(BOOL)saveContact:(id)arg0 shouldUpdate:(BOOL)arg1 ;
 -(BOOL)shouldListParticipantsInTitle;
 -(BOOL)transcriptCollectionViewController:(id)arg0 balloonView:(id)arg1 shouldSelectChatItem:(id)arg2 ;
--(BOOL)transcriptCollectionViewController:(id)arg0 balloonViewDidRequestCommitPayload:(id)arg1 forPlugin:(id)arg2 allowAllCommits:(BOOL)arg3 error:(*id)arg4 ;
--(BOOL)transcriptCollectionViewController:(id)arg0 balloonViewDidRequestCommitSticker:(id)arg1 forPlugin:(id)arg2 allowAllCommits:(BOOL)arg3 error:(*id)arg4 ;
+-(BOOL)transcriptCollectionViewController:(id)arg0 balloonViewDidRequestCommitPayload:(id)arg1 forPlugin:(id)arg2 allowAllCommits:(BOOL)arg3 error:(id)arg4 ;
+-(BOOL)transcriptCollectionViewController:(id)arg0 balloonViewDidRequestCommitSticker:(id)arg1 forPlugin:(id)arg2 allowAllCommits:(BOOL)arg3 error:(id)arg4 ;
 -(BOOL)transcriptCollectionViewController:(id)arg0 shouldCleanupFullscreenEffectUI:(id)arg1 ;
 -(BOOL)transcriptCollectionViewController:(id)arg0 shouldSetupFullscreenEffectUI:(id)arg1 ;
 -(BOOL)transcriptCollectionViewControllerPlaybackForOutgoingEffectsIsAllowed:(id)arg0 ;
@@ -85,8 +94,8 @@
 -(CGFloat)transcriptCollectionViewController:(id)arg0 targetAlphaForChatItem:(id)arg1 ;
 -(id)_fullScreenBalloonViewControllerWithChatItem:(id)arg0 ;
 -(id)_handleIDsForCurrentConversation;
--(id)_nicknameBannerUpdatesAndStyle:(*NSUInteger)arg0 ;
--(id)_retrieveNicknameBannerUpdatesIfNeeded:(*NSUInteger)arg0 ;
+-(id)_nicknameBannerUpdatesAndStyle:(NSUInteger)arg0 ;
+-(id)_retrieveNicknameBannerUpdatesIfNeeded:(NSUInteger)arg0 ;
 -(id)_threadChatItemForReplyCountChatItem:(id)arg0 chatItems:(id)arg1 ;
 -(id)createMutableContact:(id)arg0 withNicknameUpdate:(id)arg1 updatePhoto:(BOOL)arg2 updateName:(BOOL)arg3 addHandleToContact:(BOOL)arg4 ;
 -(id)gradientReferenceView;
