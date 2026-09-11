@@ -240,7 +240,8 @@ static NSMutableDictionary *handleAvailabilityStatuses;
 /// @param transaction transaction ID
 /// @return CKChatController instance
 - (CKChatController *)getCKChatControllerFromConversation:(CKConversation *)conversation transaction:(NSString *)transaction {
-    CKChatController* chatController = [[CKChatController alloc] initWithConversation: conversation];
+    Class CKChatControllerClass = NSClassFromString(@"CKChatController");
+    CKChatController* chatController = [[CKChatControllerClass alloc] initWithConversation: conversation];
     
     if (chatController == nil) {
         [NSException raise:NSGenericException format:@"Unable to create CKChatController!"];
@@ -513,10 +514,12 @@ static NSMutableDictionary *handleAvailabilityStatuses;
     
     if (data[@"filePath"] && data[@"filePath"] != [NSNull null]) {
         NSString *filePath = data[@"filePath"];
-        NSURL *fileUrl = [NSURL fileURLWithPath:filePath];
-        
-        CKMediaObject *mediaObject = [[CKMediaObjectManager sharedInstance] mediaObjectWithFileURL:fileUrl filename:nil transcoderUserInfo:nil];
-        [chat sendGroupPhotoUpdate:([mediaObject transferGUID])];
+        CKMediaObject *mediaObject = [self createMediaObjectForPath:filePath];
+        if (mediaObject != nil) {
+            [chat sendGroupPhotoUpdate:([mediaObject transferGUID])];
+        } else {
+            [chat sendGroupPhotoUpdate:nil];
+        }
     } else {
         [chat sendGroupPhotoUpdate:nil];
     }
@@ -1003,24 +1006,106 @@ static NSMutableDictionary *handleAvailabilityStatuses;
     }
 }
 
+- (CKMediaObject *)createMediaObjectForPath:(NSString *)filePath {
+    if (!filePath || filePath == (id)[NSNull null] || filePath.length == 0) return nil;
+    if (![[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+        os_log_error(logger, "Attachment file does not exist at path: %@", filePath);
+        return nil;
+    }
+    NSURL *fileUrl = [NSURL fileURLWithPath:filePath];
+    NSString *filename = [fileUrl lastPathComponent] ?: @"attachment";
+    
+    Class CKMediaObjectManagerClass = NSClassFromString(@"CKMediaObjectManager");
+    if (!CKMediaObjectManagerClass) {
+        os_log_error(logger, "CKMediaObjectManager class not found");
+        return nil;
+    }
+    id manager = [CKMediaObjectManagerClass performSelector:@selector(sharedInstance)];
+    if (!manager) {
+        os_log_error(logger, "CKMediaObjectManager sharedInstance is nil");
+        return nil;
+    }
+    
+    CKMediaObject *mediaObject = nil;
+    @try {
+        if ([manager respondsToSelector:@selector(mediaObjectWithFileURL:filename:transcoderUserInfo:)]) {
+            mediaObject = [manager mediaObjectWithFileURL:fileUrl filename:filename transcoderUserInfo:@{}];
+        }
+    } @catch (NSException *ex) {
+        os_log_error(logger, "CKMediaObjectManager exception with @{} transcoderUserInfo: %@ - %@", ex.name, ex.reason);
+    }
+    
+    if (!mediaObject) {
+        @try {
+            if ([manager respondsToSelector:@selector(mediaObjectWithFileURL:filename:transcoderUserInfo:)]) {
+                mediaObject = [manager mediaObjectWithFileURL:fileUrl filename:filename transcoderUserInfo:nil];
+            }
+        } @catch (NSException *ex) {
+            os_log_error(logger, "CKMediaObjectManager exception with nil transcoderUserInfo: %@ - %@", ex.name, ex.reason);
+        }
+    }
+    
+    if (!mediaObject) {
+        @try {
+            if ([manager respondsToSelector:@selector(mediaObjectWithFileURL:filename:transcoderUserInfo:attributionInfo:hideAttachment:)]) {
+                mediaObject = [manager mediaObjectWithFileURL:fileUrl filename:filename transcoderUserInfo:nil attributionInfo:nil hideAttachment:NO];
+            }
+        } @catch (NSException *ex) {
+            os_log_error(logger, "CKMediaObjectManager exception with attributionInfo: %@ - %@", ex.name, ex.reason);
+        }
+    }
+    
+    return mediaObject;
+}
+
 # pragma mark Message Actions
 
 - (void)sendMessageToChat:(NSString *)chatGuid newConversationObject:(CKConversation *)convo withData:(NSDictionary *)data transaction:(NSString *)transaction {
+    os_log(logger, "sendMessageToChat called with transaction: %@ chatGuid: %@", transaction, chatGuid);
+    
     // not creating a new chat (use existing guid)
     if (convo == nil) {
-        convo = [self getCKConversationFromGuid:chatGuid transaction:transaction];
+        @try {
+            convo = [self getCKConversationFromGuid:chatGuid transaction:transaction];
+        } @catch (NSException *ex) {
+            os_log_error(logger, "Failed to get CKConversation: %@ - %@", ex.name, ex.reason);
+            [[NetworkController sharedInstance] sendMessage:@{
+                @"transactionId": transaction,
+                @"error": ex.name,
+                @"reason": (ex.reason ?: @"Failed to get CKConversation"),
+                @"stack": [ex.callStackSymbols componentsJoinedByString:@"\n"]
+            }];
+            return;
+        }
     }
     
     // audio messages have a simpler pipeline
     if (data[@"isAudioMessage"] && data[@"isAudioMessage"] != [NSNull null] && [data[@"isAudioMessage"] integerValue] == 1) {
         NSString *filePath = data[@"filePath"];
-        NSURL * fileUrl = [NSURL fileURLWithPath:filePath];
-        
-        CKMediaObject *mediaObject = [[CKMediaObjectManager sharedInstance] mediaObjectWithFileURL:fileUrl filename:nil transcoderUserInfo:nil];
-        CKComposition* composition = [CKComposition audioCompositionWithMediaObject:mediaObject];
-        IMMessage* newMessage = [convo messageWithComposition:composition];
-        [convo sendMessage:newMessage newComposition:YES];
-        [[NetworkController sharedInstance] sendMessage: @{@"transactionId": transaction, @"identifier": [newMessage guid]}];
+        CKMediaObject *mediaObject = [self createMediaObjectForPath:filePath];
+        if (!mediaObject) {
+            os_log_error(logger, "Failed to create CKMediaObject for audio message: %@", filePath);
+            [[NetworkController sharedInstance] sendMessage:@{
+                @"transactionId": transaction,
+                @"error": [NSString stringWithFormat:@"Failed to create CKMediaObject for audio message: %@", filePath]
+            }];
+            return;
+        }
+        @try {
+            Class CKCompositionClass = NSClassFromString(@"CKComposition");
+            CKComposition* composition = [CKCompositionClass audioCompositionWithMediaObject:mediaObject];
+            IMMessage* newMessage = [convo messageWithComposition:composition];
+            [convo sendMessage:newMessage newComposition:YES];
+            [[NetworkController sharedInstance] sendMessage: @{@"transactionId": transaction, @"identifier": [newMessage guid]}];
+        } @catch (NSException *ex) {
+            os_log_error(logger, "Exception in audio sendMessage: %@ - %@\n%@", ex.name, ex.reason, [ex.callStackSymbols componentsJoinedByString:@"\n"]);
+            [[NetworkController sharedInstance] sendMessage:@{
+                @"transactionId": transaction,
+                @"error": ex.name,
+                @"reason": [NSString stringWithFormat:@"audio sendMessage error: %@", ex.reason],
+                @"stack": [ex.callStackSymbols componentsJoinedByString:@"\n"]
+            }];
+        }
         return;
     }
     
@@ -1031,7 +1116,20 @@ static NSMutableDictionary *handleAvailabilityStatuses;
     }
     
     // initialize with an empty string (helps for multipart messages)
-    CKComposition *composition = [[CKComposition alloc] initWithText:[[NSAttributedString alloc] initWithString:@""] subject:subjectAttributedString];
+    Class CKCompositionClass = NSClassFromString(@"CKComposition");
+    CKComposition *composition = nil;
+    @try {
+        composition = [[CKCompositionClass alloc] initWithText:[[NSAttributedString alloc] initWithString:@""] subject:subjectAttributedString];
+    } @catch (NSException *ex) {
+        os_log_error(logger, "Exception initializing CKComposition: %@ - %@", ex.name, ex.reason);
+        [[NetworkController sharedInstance] sendMessage:@{
+            @"transactionId": transaction,
+            @"error": ex.name,
+            @"reason": (ex.reason ?: @"Exception initializing CKComposition"),
+            @"stack": [ex.callStackSymbols componentsJoinedByString:@"\n"]
+        }];
+        return;
+    }
     
     if (data[@"parts"] && data[@"parts"] != [NSNull null]) {
         // if multipart, add the parts in the specified order
@@ -1039,10 +1137,16 @@ static NSMutableDictionary *handleAvailabilityStatuses;
             if (dict[@"filePath"] != [NSNull null] && [dict[@"filePath"] length] != 0) {
                 // add attachemnt objects
                 NSString *filePath = dict[@"filePath"];
-                NSURL * fileUrl = [NSURL fileURLWithPath:filePath];
-                CKMediaObject *mediaObject = [[CKMediaObjectManager sharedInstance] mediaObjectWithFileURL:fileUrl filename:nil transcoderUserInfo:nil];
-                
-                composition = [composition compositionByAppendingMediaObject:mediaObject];
+                CKMediaObject *mediaObject = [self createMediaObjectForPath:filePath];
+                if (mediaObject != nil) {
+                    @try {
+                        composition = [composition compositionByAppendingMediaObject:mediaObject];
+                    } @catch (NSException *ex) {
+                        os_log_error(logger, "Exception appending mediaObject in multipart: %@ - %@", ex.name, ex.reason);
+                    }
+                } else {
+                    os_log_error(logger, "Failed to create CKMediaObject for multipart part: %@", filePath);
+                }
             } else {
                 // add text objects (with mentions if needed)
                 NSMutableAttributedString *messageStr = [[NSMutableAttributedString alloc] initWithString: dict[@"text"]];
@@ -1051,40 +1155,90 @@ static NSMutableDictionary *handleAvailabilityStatuses;
                         @"__kIMMentionConfirmedMention": dict[@"mention"],
                     } range:NSMakeRange(0, [[messageStr string] length])];
                 }
-                // TODO probably need to combine back-to-back attributed strings into one, cannot append
-                composition = [composition compositionByAppendingText:[messageStr copy]];
+                @try {
+                    composition = [composition compositionByAppendingText:[messageStr copy]];
+                } @catch (NSException *ex) {
+                    os_log_error(logger, "Exception appending text in multipart: %@ - %@", ex.name, ex.reason);
+                }
             }
         }
     } else {
         // if normal message, attachments should appear before the message string
         if (data[@"filePath"] && data[@"filePath"] != [NSNull null]) {
             NSString *filePath = data[@"filePath"];
-            NSURL * fileUrl = [NSURL fileURLWithPath:filePath];
-            CKMediaObject *mediaObject = [[CKMediaObjectManager sharedInstance] mediaObjectWithFileURL:fileUrl filename:nil transcoderUserInfo:nil];
-            
-            composition = [composition compositionByAppendingMediaObject:mediaObject];
+            CKMediaObject *mediaObject = [self createMediaObjectForPath:filePath];
+            if (mediaObject != nil) {
+                @try {
+                    composition = [composition compositionByAppendingMediaObject:mediaObject];
+                } @catch (NSException *ex) {
+                    os_log_error(logger, "Exception in compositionByAppendingMediaObject: %@ - %@\n%@", ex.name, ex.reason, [ex.callStackSymbols componentsJoinedByString:@"\n"]);
+                    [[NetworkController sharedInstance] sendMessage:@{
+                        @"transactionId": transaction,
+                        @"error": ex.name,
+                        @"reason": [NSString stringWithFormat:@"compositionByAppendingMediaObject error: %@", ex.reason],
+                        @"stack": [ex.callStackSymbols componentsJoinedByString:@"\n"]
+                    }];
+                    return;
+                }
+            } else {
+                os_log_error(logger, "Failed to create CKMediaObject for path: %@", filePath);
+                [[NetworkController sharedInstance] sendMessage:@{
+                    @"transactionId": transaction,
+                    @"error": [NSString stringWithFormat:@"Failed to create CKMediaObject for path: %@", filePath]
+                }];
+                return;
+            }
         }
         
-        // Attachments will not have the message parameter provided, so set an empty string
+        // Only append text if non-empty
         NSString *message = (data[@"message"] && data[@"message"] != [NSNull null]) ? data[@"message"] : @"";
-        NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString: message];
-        composition = [composition compositionByAppendingText:attributedString];
+        if (message.length > 0) {
+            @try {
+                NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString: message];
+                composition = [composition compositionByAppendingText:attributedString];
+            } @catch (NSException *ex) {
+                os_log_error(logger, "Exception in compositionByAppendingText: %@ - %@", ex.name, ex.reason);
+            }
+        }
     }
     
     // Effects
     if (data[@"effectId"] && data[@"effectId"] != [NSNull null] && [data[@"effectId"] length] != 0) {
-        [composition setExpressiveSendStyleID:data[@"effectId"]];
+        @try {
+            [composition setExpressiveSendStyleID:data[@"effectId"]];
+        } @catch (NSException *ex) {
+            os_log_error(logger, "Exception setting expressiveSendStyleID: %@ - %@", ex.name, ex.reason);
+        }
     }
     
-    IMMessage* newMessage = [convo messageWithComposition:composition];
+    IMMessage* newMessage = nil;
+    @try {
+        newMessage = [convo messageWithComposition:composition];
+    } @catch (NSException *ex) {
+        os_log_error(logger, "Exception in messageWithComposition: %@ - %@\n%@", ex.name, ex.reason, [ex.callStackSymbols componentsJoinedByString:@"\n"]);
+        [[NetworkController sharedInstance] sendMessage:@{
+            @"transactionId": transaction,
+            @"error": ex.name,
+            @"reason": [NSString stringWithFormat:@"messageWithComposition error: %@", ex.reason],
+            @"stack": [ex.callStackSymbols componentsJoinedByString:@"\n"]
+        }];
+        return;
+    }
+    
+    if (newMessage == nil) {
+        os_log_error(logger, "newMessage is nil from messageWithComposition!");
+        [[NetworkController sharedInstance] sendMessage:@{
+            @"transactionId": transaction,
+            @"error": @"Failed to generate IMMessage from composition"
+        }];
+        return;
+    }
     
     // Replies (macOS 13+)
-    // TODO FIX ISSUE OF REPLYING TO EXISTING THREAD ON MULTIPART MSG SHOWS ON THE FIRST PART NOT ON THE SPECIFIED ONE
     if (data[@"selectedMessageGuid"] && data[@"selectedMessageGuid"] != [NSNull null]) {
         [self getIMMessagePartChatItemFromGuid:data[@"selectedMessageGuid"] atPartIndex:[data[@"partIndex"] unsignedIntValue] completionBlock:^(IMMessagePartChatItem *chatItem) {
             NSString *identifier;
             IMMessage *originator;
-            // if an existing thread exists, use it's thread identifier, otherwise create a new one
             if (chatItem.threadIdentifier != nil) {
                 identifier = chatItem.threadIdentifier;
                 originator = [chatItem.threadOriginator message];
@@ -1098,13 +1252,33 @@ static NSMutableDictionary *handleAvailabilityStatuses;
             newMessage.threadIdentifier = identifier;
             newMessage.threadOriginator = originator;
             
-            [convo sendMessage:newMessage newComposition:YES];
-            [[NetworkController sharedInstance] sendMessage: @{@"transactionId": transaction, @"identifier": [newMessage guid]}];
+            @try {
+                [convo sendMessage:newMessage newComposition:YES];
+                [[NetworkController sharedInstance] sendMessage: @{@"transactionId": transaction, @"identifier": [newMessage guid]}];
+            } @catch (NSException *ex) {
+                os_log_error(logger, "Exception in threaded sendMessage: %@ - %@\n%@", ex.name, ex.reason, [ex.callStackSymbols componentsJoinedByString:@"\n"]);
+                [[NetworkController sharedInstance] sendMessage:@{
+                    @"transactionId": transaction,
+                    @"error": ex.name,
+                    @"reason": [NSString stringWithFormat:@"threaded sendMessage error: %@", ex.reason],
+                    @"stack": [ex.callStackSymbols componentsJoinedByString:@"\n"]
+                }];
+            }
         }];
     // Normal message
     } else {
-        [convo sendMessage:newMessage newComposition:YES];
-        [[NetworkController sharedInstance] sendMessage: @{@"transactionId": transaction, @"identifier": [newMessage guid]}];
+        @try {
+            [convo sendMessage:newMessage newComposition:YES];
+            [[NetworkController sharedInstance] sendMessage: @{@"transactionId": transaction, @"identifier": [newMessage guid]}];
+        } @catch (NSException *ex) {
+            os_log_error(logger, "Exception in normal sendMessage: %@ - %@\n%@", ex.name, ex.reason, [ex.callStackSymbols componentsJoinedByString:@"\n"]);
+            [[NetworkController sharedInstance] sendMessage:@{
+                @"transactionId": transaction,
+                @"error": ex.name,
+                @"reason": [NSString stringWithFormat:@"sendMessage error: %@", ex.reason],
+                @"stack": [ex.callStackSymbols componentsJoinedByString:@"\n"]
+            }];
+        }
     }
 }
 
@@ -1114,11 +1288,12 @@ static NSMutableDictionary *handleAvailabilityStatuses;
     if (chat != nil) {
         [self getIMMessagePartChatItemFromGuid:data[@"selectedMessageGuid"] atPartIndex:[data[@"partIndex"] unsignedIntValue] completionBlock:^(IMMessagePartChatItem *chatItem) {
             // make a "fake" CKChatItem so the [chat sendTapback] or [chat sendMessageAcknowledgment] selectors can be used
+            Class CKChatItemClass = NSClassFromString(@"CKChatItem");
             CKChatItem *ckChatItem = nil;
-            if ([CKChatItem respondsToSelector:@selector(chatItemWithIMChatItem:balloonMaxWidth:)]) {
-                ckChatItem = [CKChatItem chatItemWithIMChatItem:chatItem balloonMaxWidth:100];
+            if ([CKChatItemClass respondsToSelector:@selector(chatItemWithIMChatItem:balloonMaxWidth:)]) {
+                ckChatItem = [CKChatItemClass chatItemWithIMChatItem:chatItem balloonMaxWidth:100];
             } else {
-                ckChatItem = [CKChatItem chatItemWithIMChatItem:chatItem balloonMaxWidth:100 fullMaxWidth:100 transcriptTraitCollection:nil overlayLayout:FALSE];
+                ckChatItem = [CKChatItemClass chatItemWithIMChatItem:chatItem balloonMaxWidth:100 fullMaxWidth:100 transcriptTraitCollection:nil overlayLayout:FALSE];
             }
 
             // emoji tapbacks (macOS 26+)
@@ -1145,7 +1320,8 @@ static NSMutableDictionary *handleAvailabilityStatuses;
 
         NSAttributedString *editedString = [[NSAttributedString alloc] initWithString: data[@"editedMessage"]];
         NSInteger partIndex = [data[@"partIndex"] integerValue];
-        CKComposition* composition = [[CKComposition alloc] initWithText:editedString subject:nil];
+        Class CKCompositionClass = NSClassFromString(@"CKComposition");
+        CKComposition* composition = [[CKCompositionClass alloc] initWithText:editedString subject:nil];
         
         CKConversation* convo = [self getCKConversationFromGuid:chatGuid transaction:transaction];
         if (convo != nil) {

@@ -126,8 +126,13 @@ static os_log_t logger;
         [[BlueBubblesHelper sharedInstance] handleServerEvent:event data:eventData transactionId:transaction];
     }
     @catch (NSException *exception) {
-        os_log_error(logger, "Caught exception: %@ - %@", exception.name, exception.reason);
-        [[NetworkController sharedInstance] sendMessage: @{@"transactionId": transaction, @"error": exception.name, @"reason": exception.reason}];
+        os_log_error(logger, "Caught exception in handleServerEvent (%@): %@ - %@\n%@", event, exception.name, exception.reason, [exception.callStackSymbols componentsJoinedByString:@"\n"]);
+        [[NetworkController sharedInstance] sendMessage: @{
+            @"transactionId": transaction,
+            @"error": exception.name,
+            @"reason": (exception.reason ?: @"Unknown reason"),
+            @"stack": [exception.callStackSymbols componentsJoinedByString:@"\n"]
+        }];
     }
 }
 

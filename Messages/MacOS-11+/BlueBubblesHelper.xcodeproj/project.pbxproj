@@ -364,8 +364,6 @@
 				A62991C829720FAC00B7E663 /* Sources */,
 				A62991C929720FAC00B7E663 /* Frameworks */,
 				A6490A0D29846973002B0E1D /* Resources */,
-				A65C21A62A9AAAE600D6FB7F /* Copy Files */,
-				A6490A0F29846A3A002B0E1D /* Run Script */,
 			);
 			buildRules = (
 			);
@@ -541,7 +539,7 @@
 					"$(inherited)",
 					"$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks",
 				);
-				SYSTEM_HEADER_SEARCH_PATHS = "/Users/tanay/StudioProjects/bluebubbles-helper/Messages/MacOS-11+/BlueBubblesHelper";
+				SYSTEM_HEADER_SEARCH_PATHS = "$(SRCROOT)/BlueBubblesHelper";
 			};
 			name = Debug;
 		};
@@ -604,7 +602,7 @@
 					"$(inherited)",
 					"$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks",
 				);
-				SYSTEM_HEADER_SEARCH_PATHS = "/Users/tanay/StudioProjects/bluebubbles-helper/Messages/MacOS-11+/BlueBubblesHelper";
+				SYSTEM_HEADER_SEARCH_PATHS = "$(SRCROOT)/BlueBubblesHelper";
 			};
 			name = Release;
 		};
